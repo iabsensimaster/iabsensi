@@ -1,2 +1,2 @@
-# iabsensi
-iabsensi
+# absensi-app
+Absensi Karyawan
