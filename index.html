@@ -225,30 +225,33 @@
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/jpeg");
 
-        fetch(endpoint, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            nama: nama,
-            lokasi: lokasi,
-            foto: dataUrl,
-            tipe: tipeAbsen
-          })
-        })
-        .then(() => {
-          showLoading(false);
-          let pesan = tipeAbsen === "masuk"
-            ? "Absensi masuk berhasil!"
-            : "Absensi pulang berhasil!";
-          showPopup(pesan);
-          speak("Absensi berhasil. Terima kasih.");
-          document.getElementById("nama").value = "";
-        })
-        .catch(() => {
-          showLoading(false);
-          status.innerText = "Gagal mengirim data.";
-        });
+fetch(endpoint, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    nama: nama,
+    lokasi: lokasi,
+    foto: dataUrl,
+    tipe: tipeAbsen
+  })
+})
+.then(response => response.text())   // atau .json() jika Apps Script kirim JSON
+.then(res => {
+  showLoading(false);
+  let pesan = tipeAbsen === "masuk"
+    ? "Absensi masuk berhasil!"
+    : "Absensi pulang berhasil!";
+  showPopup(pesan);
+  speak("Absensi berhasil. Terima kasih.");
+  document.getElementById("nama").value = "";
+})
+.catch(err => {
+  showLoading(false);
+  console.error("Error kirim absensi:", err);
+  status.innerText = "Gagal mengirim data.";
+});
 
       }, () => {
         showLoading(false);
