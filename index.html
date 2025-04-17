@@ -127,9 +127,8 @@
     const loading = document.getElementById("loading");
     const popup = document.getElementById("popup");
 
-const endpoint = "https://script.google.com/macros/s/AKfycbwHiIZzJuuGT4VNM2Lr60T2CzGzmHAlMFVMiNuTC1D1sdLh19OwjkKIeA4KNc2mJ4A/exec"; // URL untuk Absensi (POST)
-const karyawanEndpoint = "https://script.google.com/macros/s/AKfycbwHiIZzJuuGT4VNM2Lr60T2CzGzmHAlMFVMiNuTC1D1sdLh19OwjkKIeA4KNc2mJ4A/exec?action=listnama"; // URL untuk daftar nama karyawan (GET)
-
+    const endpoint = "https://script.google.com/macros/s/AKfycbzi49RNsc7_ywh_y-XhtHs90vsNraXeSzbqsZc_7opH3f64CZy82UeRSWaz125pqBk/exec"; // URL untuk Absensi (POST)
+    const karyawanEndpoint = "https://script.google.com/macros/s/AKfycbzi49RNsc7_ywh_y-XhtHs90vsNraXeSzbqsZc_7opH3f64CZy82UeRSWaz125pqBk/exec?action=listnama"; // URL untuk daftar nama karyawan (GET)
 
     let femaleVoice;
 
@@ -166,7 +165,7 @@ const karyawanEndpoint = "https://script.google.com/macros/s/AKfycbwHiIZzJuuGT4V
         .then(data => {
           const selectNama = document.getElementById("nama");
           selectNama.innerHTML = '<option value="">Pilih Nama</option>';
-          data.forEach(nama => {
+          data.nama.forEach(nama => {
             const option = document.createElement("option");
             option.value = nama;
             option.textContent = nama;
