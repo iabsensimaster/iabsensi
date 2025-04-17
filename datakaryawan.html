@@ -104,35 +104,22 @@
   </table>
 
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbx-vWP-wpPrkZtSyckl20WL95cz5ETbnH2nbKAS5g4DOQt9SrjfFIRcKCDxdj8M8L4/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbyhIhaxMo9VzADpYb5mi0H370GrZlMfGvtHW8i1lLq2__wEedVbDRFKu8aZmasFpBw/exec';
     let dataKaryawan = [];
     let selectedFile = null;
-
     if (localStorage.getItem('loggedIn') !== 'true') {
       window.location.href = 'login.html';
     }
-
-    // Memuat data karyawan dari Google Apps Script
     async function loadKaryawan() {
-      try {
-        const res = await fetch(scriptURL + '?action=getkaryawan&sheet=Datakaryawan');
-        const data = await res.json();
-        if (data.success) {
-          dataKaryawan = data.karyawan;
-          tampilkanData(dataKaryawan);
-        } else {
-          alert('Gagal mengambil data karyawan.');
-        }
-      } catch (error) {
-        alert('Terjadi kesalahan saat mengambil data.');
-        console.error(error);
-      }
+      const res = await fetch(scriptURL + '?sheet=Datakaryawan');
+      dataKaryawan = await res.json();
+      tampilkanData(dataKaryawan);
     }
 
-    // Menampilkan data karyawan ke tabel
     function tampilkanData(data) {
       const tbody = document.getElementById('tabel-karyawan');
       tbody.innerHTML = '';
+
       data.forEach((item, index) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -150,20 +137,17 @@
       });
     }
 
-    // Filter nama karyawan
     function filterKaryawan() {
       const keyword = document.getElementById('cariNama').value.toLowerCase();
       const filtered = dataKaryawan.filter(nama => nama.toLowerCase().includes(keyword));
       tampilkanData(filtered);
     }
 
-    // Aktifkan edit
     function enableEdit(index) {
       document.getElementById(`input-${index}`).disabled = false;
       document.getElementById(`input-${index}`).focus();
     }
 
-    // Simpan edit
     async function simpanEdit(index) {
       const input = document.getElementById(`input-${index}`);
       const namaBaru = input.value.trim();
@@ -181,8 +165,7 @@
       loadKaryawan();
     }
 
-    // Tambah karyawan
-    async function addKaryawan() {
+    async function tambahKaryawan() {
       const nama = document.getElementById('namaBaru').value.trim();
       if (!nama) return alert('Nama tidak boleh kosong');
 
@@ -198,7 +181,6 @@
       loadKaryawan();
     }
 
-    // Hapus karyawan
     async function hapusKaryawan(index) {
       if (!confirm('Yakin ingin menghapus karyawan ini?')) return;
       await fetch(scriptURL, {
@@ -211,12 +193,10 @@
       loadKaryawan();
     }
 
-    // Pilih file excel
     function handleFileSelect(event) {
       selectedFile = event.target.files[0];
     }
 
-    // Upload excel ke spreadsheet
     async function handleUpload() {
       if (!selectedFile) return alert("Silakan pilih file Excel terlebih dahulu");
 
@@ -227,7 +207,7 @@
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-        const namaList = rows.slice(1).map(row => row[0]).filter(Boolean);
+        const namaList = rows.slice(1).map(row => row[0]).filter(Boolean); // Skip header
         for (const nama of namaList) {
           await fetch(scriptURL, {
             method: 'POST',
@@ -245,12 +225,15 @@
       reader.readAsArrayBuffer(selectedFile);
     }
 
-    // Download ke Excel
     function downloadExcel() {
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet([["Nama"], ...dataKaryawan.map(n => [n])]);
       XLSX.utils.book_append_sheet(wb, ws, "Datakaryawan");
       XLSX.writeFile(wb, "Daftar_Karyawan.xlsx");
+    }
+        function logout() {
+      localStorage.removeItem('loggedIn');
+      window.location.href = 'login.html';
     }
 
     window.onload = loadKaryawan;
