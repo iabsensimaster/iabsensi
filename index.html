@@ -127,8 +127,8 @@
     const loading = document.getElementById("loading");
     const popup = document.getElementById("popup");
 
-    const endpoint = "https://script.google.com/macros/s/AKfycby4qqJhkOMLyL41VqfJjLDL1JWJHzAl0B5RuEMYbz3h_6ol0egIiSKjd_t9LcJAVDM/exec";
-    const karyawanEndpoint = "https://script.google.com/macros/s/AKfycby4qqJhkOMLyL41VqfJjLDL1JWJHzAl0B5RuEMYbz3h_6ol0egIiSKjd_t9LcJAVDM/exec?action=listnama";
+    const endpoint = "https://script.google.com/macros/s/AKfycbydbVf303JgKHCeMd0a629ewn3cuLaZufMnz0rVWxmeFxq-HvGkrKmgBzhEmmTmgsE/exec";
+    const karyawanEndpoint = endpoint + "?action=listnama";
 
     let femaleVoice;
 
@@ -161,19 +161,18 @@
 
     function loadNamaKaryawan() {
       fetch(karyawanEndpoint)
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-          const selectNama = document.getElementById("nama");
-          selectNama.innerHTML = '<option value="">Pilih Nama</option>';
-          data.forEach(nama => {
-            const option = document.createElement("option");
-            option.value = nama;
-            option.textContent = nama;
-            selectNama.appendChild(option);
+          const sel = document.getElementById("nama");
+          sel.innerHTML = '<option value="">Pilih Nama</option>';
+          data.nama.forEach(n => {
+            const o = document.createElement("option");
+            o.value = o.textContent = n;
+            sel.appendChild(o);
           });
         })
         .catch(err => {
-          console.error("Gagal mengambil data karyawan:", err);
+          console.error("Gagal load nama:", err);
           alert("Gagal memuat daftar karyawan.");
         });
     }
