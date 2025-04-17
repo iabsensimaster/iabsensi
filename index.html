@@ -127,9 +127,8 @@
     const loading = document.getElementById("loading");
     const popup = document.getElementById("popup");
 
-    const endpoint = "https://script.google.com/macros/s/AKfycbzS7qIZ8r_Tb_IbBmj36MkUtCIG5wLFl0XpgTjJJxdcjNp-cG0M5K_l41vx9wehrCM/exec";
-    const karyawanEndpoint = "https://script.google.com/macros/s/AKfycbzS7qIZ8r_Tb_IbBmj36MkUtCIG5wLFl0XpgTjJJxdcjNp-cG0M5K_l41vx9wehrCM/exec";
-
+    const endpoint = "https://script.google.com/macros/s/AKfycbyiOOsIUzsfEqP_ofT2gaQr74ZdT-pN_09mNSCdDR0QT51IWVzNC4ErMBWA2VpnY50/exec";
+    const karyawanEndpoint = endpoint + "?action=listnama";
     let femaleVoice;
 
     window.speechSynthesis.onvoiceschanged = () => {
