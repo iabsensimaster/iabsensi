@@ -127,10 +127,8 @@
     const loading = document.getElementById("loading");
     const popup = document.getElementById("popup");
 
-    const endpoint = "https://script.google.com/macros/s/AKfycbyAvWmZjLWktPJYRmVxgAIDRll0KKl9k9A0vhR8uqpEYj3LIBpRwrMiqGidim0SSaE/exec";
-    const karyawanEndpoint = endpoint + "?action=listnama";
-
-
+    const endpoint = "https://script.google.com/macros/s/AKfycbwHiIZzJuuGT4VNM2Lr60T2CzGzmHAlMFVMiNuTC1D1sdLh19OwjkKIeA4KNc2mJ4A";
+    const karyawanEndpoint = "https://script.google.com/macros/s/AKfycbwHiIZzJuuGT4VNM2Lr60T2CzGzmHAlMFVMiNuTC1D1sdLh19OwjkKIeA4KNc2mJ4A/exec?action=listnama";
 
     let femaleVoice;
 
@@ -161,7 +159,7 @@
       }, 3000);
     }
 
-    function handleRequest() {
+    function loadNamaKaryawan() {
       fetch(karyawanEndpoint)
         .then(response => response.json())
         .then(data => {
@@ -191,7 +189,7 @@
         });
 
       navigator.geolocation.getCurrentPosition(() => {}, () => {});
-      handleRequest();
+      loadNamaKaryawan();
     });
 
     function ambilFoto() {
