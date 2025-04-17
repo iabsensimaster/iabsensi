@@ -15,75 +15,55 @@
       --text: #1e293b;
       --card: #ffffff;
     }
-
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background-color: var(--bg-light);
       color: var(--text);
     }
-
     .header {
       background-color: var(--card);
       padding: 16px 24px;
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
-      justify-content: space-between;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      gap: 16px;
     }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
     .header img {
       height: 48px;
+      margin-right: 12px;
     }
-
     .header h2 {
       margin: 0;
       color: var(--primary-dark);
       font-size: 1.6rem;
     }
-
     .dashboard-button {
-      margin: 12px 16px 0;
-      display: inline-block;
+      margin: 12px 16px;
       background-color: var(--primary);
       color: white;
-      border: none;
       padding: 8px 14px;
+      border: none;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.3s;
       text-decoration: none;
     }
-
     .dashboard-button:hover {
       background-color: var(--primary-dark);
     }
-
     .filters {
       background-color: var(--card);
       padding: 16px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      justify-content: center;
       gap: 12px;
       margin: 12px 16px;
       border-radius: 8px;
       box-shadow: 0 1px 5px rgba(0,0,0,0.03);
     }
-
     .filters label {
       font-weight: 500;
     }
-
     .filters input,
     .filters select {
       padding: 8px 12px;
@@ -91,7 +71,6 @@
       border-radius: 6px;
       border: 1px solid #ccc;
     }
-
     .filters button {
       background-color: var(--primary);
       color: white;
@@ -99,13 +78,10 @@
       padding: 10px 15px;
       border-radius: 6px;
       cursor: pointer;
-      transition: background 0.3s;
     }
-
     .filters button:hover {
       background-color: var(--primary-dark);
     }
-
     table {
       width: 95%;
       margin: 20px auto;
@@ -113,77 +89,46 @@
       background-color: var(--card);
       box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
-
     th, td {
       padding: 12px;
       border: 1px solid #e2e8f0;
       text-align: center;
       font-size: 14px;
     }
-
     th {
       background-color: var(--primary);
       color: white;
       position: sticky;
       top: 0;
-      z-index: 1;
     }
-
     td:first-child,
     th:first-child {
       position: sticky;
       left: 0;
       background-color: var(--primary-dark);
       color: white;
-      z-index: 1;
     }
-
     tr:nth-child(even) {
       background-color: #f9fafb;
     }
-
     .foto-preview {
       width: 60px;
       height: 60px;
       border-radius: 6px;
       object-fit: cover;
-      display: block;
-      margin: auto;
     }
-
-    .logout-button:hover {
-      background-color: var(--danger-dark);
-    }
-
     @media (max-width: 768px) {
-      .filters {
-        flex-direction: column;
-      }
-
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      table, th, td {
-        font-size: 12px;
-      }
-
-      .foto-preview {
-        width: 50px;
-        height: 50px;
-      }
+      .filters { flex-direction: column; }
+      table, th, td { font-size: 12px; }
+      .foto-preview { width: 50px; height: 50px; }
     }
   </style>
 </head>
 <body>
   <a class="dashboard-button" href="dashboard.html">← Dashboard</a>
-
   <div class="header">
-    <div class="header-left">
-      <img src="pertamina-logoicon.png" alt="Logo Pertamina">
-      <h2>Data Absensi Karyawan</h2>
-    </div>
+    <img src="pertamina-logoicon.png" alt="Logo Pertamina">
+    <h2>Data Absensi Karyawan</h2>
   </div>
 
   <div class="filters">
@@ -218,7 +163,6 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-
   <script>
     if (localStorage.getItem('loggedIn') !== 'true') {
       window.location.href = 'login.html';
@@ -231,7 +175,10 @@
 
     function formatTimestamp(isoString) {
       const date = new Date(isoString);
-      return isNaN(date) ? "-" : date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + date.toLocaleTimeString('id-ID');
+      return isNaN(date)
+        ? "-"
+        : date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })
+          + ' ' + date.toLocaleTimeString('id-ID');
     }
 
     function formatTanggalKeInput(isoString) {
@@ -242,8 +189,8 @@
     async function fetchData() {
       try {
         const response = await fetch(endpoint);
-        const data = await response.json();
-        return data;
+        const json = await response.json();
+        return Array.isArray(json) ? json : (json.absensi || []);
       } catch (err) {
         console.error("Gagal mengambil data:", err);
         return [];
@@ -252,23 +199,24 @@
 
     async function renderTable() {
       const data = await fetchData();
-      const tanggalFilter = filterTanggal.value;
-      const absenFilter = filterAbsen.value;
-
+      const tanggalValue = filterTanggal.value;
+      const absenValue = filterAbsen.value;
       tableBody.innerHTML = "";
 
       const filtered = data.filter(d => {
-        const matchesTanggal = !tanggalFilter || formatTanggalKeInput(d.Timestamp) === tanggalFilter;
-        const matchesAbsen = !absenFilter || d.Tipe === absenFilter;
-        return matchesTanggal && matchesAbsen;
+        const dateMatch = !tanggalValue || formatTanggalKeInput(d.Timestamp) === tanggalValue;
+        const typeMatch = !absenValue || d.Tipe === absenValue;
+        return dateMatch && typeMatch;
       });
 
-      filtered.forEach((item, index) => {
+      filtered.forEach((item, idx) => {
         const row = document.createElement("tr");
-        const fotoSrc = item.Foto?.startsWith("data:image") ? item.Foto : "https://via.placeholder.com/80?text=No+Image";
+        const fotoSrc = item.Foto && item.Foto.startsWith("data:image")
+          ? item.Foto
+          : "https://via.placeholder.com/80?text=No+Image";
 
         row.innerHTML = `
-          <td>${index + 1}</td>
+          <td>${idx + 1}</td>
           <td>${item.Nama || "-"}</td>
           <td>${formatTimestamp(item.Timestamp)}</td>
           <td><a href="${item.Lokasi}" target="_blank">Lihat Lokasi</a></td>
@@ -285,74 +233,50 @@
 
     function exportExcel() {
       const wb = XLSX.utils.book_new();
-      const ws_data = [];
-      const absenFilter = filterAbsen.value;
-      const judul = absenFilter === "pulang" ? "Absensi Pulang" :
-                    absenFilter === "masuk" ? "Absensi Masuk" : "Semua Data Absensi";
-      const tanggalHariIni = new Date().toISOString().split('T')[0];
-      ws_data.push([judul], []);
-      ws_data.push(["No", "Nama", "Tanggal & Jam", "Lokasi", "Tipe Absen"]);
-
-      const rows = Array.from(tableBody.children).map(row => [
-        row.children[0].textContent,
-        row.children[1].textContent,
-        row.children[2].textContent,
-        row.children[3].textContent,
-        row.children[5].textContent
+      const rows = Array.from(tableBody.children).map(r => [
+        r.children[0].textContent,
+        r.children[1].textContent,
+        r.children[2].textContent,
+        r.children[3].textContent,
+        r.children[5].textContent
       ]);
-      ws_data.push(...rows);
-
+      const ws_data = [
+        ["Data Absensi"], [],
+        ["No", "Nama", "Tanggal & Jam", "Lokasi", "Tipe Absen"],
+        ...rows
+      ];
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
       XLSX.utils.book_append_sheet(wb, ws, "Absensi");
-      XLSX.writeFile(wb, `${judul.replace(/\s+/g, '_')}_${tanggalHariIni}.xlsx`);
+      XLSX.writeFile(wb, `Absensi_${new Date().toISOString().split('T')[0]}.xlsx`);
     }
 
     async function exportPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      const absenFilter = filterAbsen.value;
-      const judul = absenFilter === "pulang" ? "Absensi Pulang" :
-                    absenFilter === "masuk" ? "Absensi Masuk" : "Semua Data Absensi";
-      const tanggalHariIni = new Date().toISOString().split('T')[0];
-
+      let y = 20;
       doc.setFontSize(16);
-      doc.text(judul, 20, 20);
-      let y = 30;
+      doc.text("Data Absensi", 20, y);
+      y += 10;
+      doc.setFontSize(10);
 
-      for (let i = 0; i < tableBody.children.length; i++) {
-        const row = tableBody.children[i];
+      Array.from(tableBody.children).forEach((row, i) => {
         const nama = row.children[1].textContent;
         const tanggal = row.children[2].textContent;
         const lokasi = row.children[3].textContent;
         const tipe = row.children[5].textContent;
-        const imgTag = row.children[4].querySelector("img");
 
-        doc.setFontSize(10);
-        doc.text(`${i + 1}. Nama: ${nama}`, 20, y);
-        doc.text(`Tanggal & Jam: ${tanggal}`, 20, y + 5);
-        doc.text(`Lokasi: ${lokasi}`, 20, y + 10);
-        doc.text(`Tipe Absen: ${tipe}`, 20, y + 15);
-
-        if (imgTag && imgTag.src.startsWith("data:image")) {
-          try {
-            doc.addImage(imgTag.src, "JPEG", 140, y, 40, 40);
-          } catch (e) {
-            console.warn("Gagal menyisipkan gambar:", e);
-          }
-        }
-
-        y += 50;
-        if (y > 270) {
+        doc.text(`${i + 1}. ${nama} | ${tanggal} | ${tipe}`, 20, y);
+        y += 6;
+        if (y > 280) {
           doc.addPage();
           y = 20;
         }
-      }
+      });
 
-      doc.save(`${judul.replace(/\s+/g, '_')}_${tanggalHariIni}.pdf`);
-
+      doc.save(`Absensi_${new Date().toISOString().split('T')[0]}.pdf`);
     }
 
-    setTimeout(logout, 3600000);
+    setTimeout(() => localStorage.removeItem('loggedIn'), 3600000);
   </script>
 </body>
 </html>
