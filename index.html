@@ -248,11 +248,13 @@
           } else {
             showLoading(false);
             status.innerText = "Gagal mengirim data.";
+            alert("Gagal mengirim data ke server. Pastikan jaringan Anda stabil.");
           }
         })
         .catch(() => {
           showLoading(false);
           status.innerText = "Gagal mengirim data.";
+          alert("Gagal mengirim data ke server. Pastikan jaringan Anda stabil.");
         });
 
       }, () => {
