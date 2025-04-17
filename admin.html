@@ -47,9 +47,7 @@
       cursor: pointer;
       text-decoration: none;
     }
-    .dashboard-button:hover {
-      background-color: var(--primary-dark);
-    }
+    .dashboard-button:hover { background-color: var(--primary-dark); }
     .filters {
       background-color: var(--card);
       padding: 16px;
@@ -61,11 +59,7 @@
       border-radius: 8px;
       box-shadow: 0 1px 5px rgba(0,0,0,0.03);
     }
-    .filters label {
-      font-weight: 500;
-    }
-    .filters input,
-    .filters select {
+    .filters input, .filters select {
       padding: 8px 12px;
       font-size: 14px;
       border-radius: 6px;
@@ -79,9 +73,7 @@
       border-radius: 6px;
       cursor: pointer;
     }
-    .filters button:hover {
-      background-color: var(--primary-dark);
-    }
+    .filters button:hover { background-color: var(--primary-dark); }
     table {
       width: 95%;
       margin: 20px auto;
@@ -101,16 +93,13 @@
       position: sticky;
       top: 0;
     }
-    td:first-child,
-    th:first-child {
+    td:first-child, th:first-child {
       position: sticky;
       left: 0;
       background-color: var(--primary-dark);
       color: white;
     }
-    tr:nth-child(even) {
-      background-color: #f9fafb;
-    }
+    tr:nth-child(even) { background-color: #f9fafb; }
     .foto-preview {
       width: 60px;
       height: 60px;
@@ -168,63 +157,57 @@
       window.location.href = 'login.html';
     }
 
-    const endpoint = 'https://script.google.com/macros/s/AKfycbz5n5y9PbON9Zu-1Md1-xcG8_InFW4Knp5UAwk4o5BUBLRqmWftAIGmpb4XSijc32E/exec?action=absensi';
-    const tableBody = document.querySelector("#absensi-table tbody");
+    const endpoint = 
+      'https://script.google.com/macros/s/AKfycbz5n5y9PbON9Zu-1Md1-xcG8_InFW4Knp5UAwk4o5BUBLRqmWftAIGmpb4XSijc32E/exec?action=absensi';
+    const tableBody     = document.querySelector("#absensi-table tbody");
     const filterTanggal = document.getElementById("filter-tanggal");
-    const filterAbsen = document.getElementById("filter-absen");
+    const filterAbsen   = document.getElementById("filter-absen");
 
-    function formatTimestamp(isoString) {
-      const date = new Date(isoString);
-      return isNaN(date)
-        ? "-"
-        : date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })
-          + ' ' + date.toLocaleTimeString('id-ID');
-    }
-
-    function formatTanggalKeInput(isoString) {
-      const date = new Date(isoString);
-      return isNaN(date) ? "" : date.toISOString().split('T')[0];
+    function formatTanggalKeInput(str) {
+      const d = new Date(str);
+      return isNaN(d) ? "" : d.toISOString().split('T')[0];
     }
 
     async function fetchData() {
       try {
-        const response = await fetch(endpoint);
-        const json = await response.json();
+        const res = await fetch(endpoint);
+        const json = await res.json();
         return Array.isArray(json) ? json : (json.absensi || []);
-      } catch (err) {
-        console.error("Gagal mengambil data:", err);
+      } catch (e) {
+        console.error("Gagal mengambil data:", e);
         return [];
       }
     }
 
     async function renderTable() {
       const data = await fetchData();
-      const tanggalValue = filterTanggal.value;
-      const absenValue = filterAbsen.value;
+      const tglVal = filterTanggal.value;
+      const typeVal = filterAbsen.value;
       tableBody.innerHTML = "";
 
-      const filtered = data.filter(d => {
-        const dateMatch = !tanggalValue || formatTanggalKeInput(d.Timestamp) === tanggalValue;
-        const typeMatch = !absenValue || d.Tipe === absenValue;
-        return dateMatch && typeMatch;
-      });
+      data
+        .filter(item => {
+          const matchDate = !tglVal || formatTanggalKeInput(item.Timestamp) === tglVal;
+          const matchType = !typeVal || item.Tipe === typeVal;
+          return matchDate && matchType;
+        })
+        .forEach((item, i) => {
+          const row = document.createElement("tr");
+          const fotoSrc = item.Foto?.startsWith("data:image")
+            ? item.Foto
+            : "https://via.placeholder.com/80?text=No+Image";
 
-      filtered.forEach((item, idx) => {
-        const row = document.createElement("tr");
-        const fotoSrc = item.Foto && item.Foto.startsWith("data:image")
-          ? item.Foto
-          : "https://via.placeholder.com/80?text=No+Image";
-
-        row.innerHTML = `
-          <td>${idx + 1}</td>
-          <td>${item.Nama || "-"}</td>
-          <td>${formatTimestamp(item.Timestamp)}</td>
-          <td><a href="${item.Lokasi}" target="_blank">Lihat Lokasi</a></td>
-          <td><img class="foto-preview" src="${fotoSrc}" alt="foto" /></td>
-          <td>${item.Tipe || "-"}</td>
-        `;
-        tableBody.appendChild(row);
-      });
+          row.innerHTML = `
+            <td>${i+1}</td>
+            <td>${item.Nama || "-"}</td>
+            <!-- Gabungkan tanggal & jam di satu kolom -->
+            <td>${item.Timestamp || ""} ${item.Jam || ""}</td>
+            <td><a href="${item.Lokasi}" target="_blank">Lihat Lokasi</a></td>
+            <td><img class="foto-preview" src="${fotoSrc}" alt="foto"></td>
+            <td>${item.Tipe || "-"}</td>
+          `;
+          tableBody.appendChild(row);
+        });
     }
 
     filterTanggal.addEventListener("change", renderTable);
@@ -233,7 +216,7 @@
 
     function exportExcel() {
       const wb = XLSX.utils.book_new();
-      const rows = Array.from(tableBody.children).map(r => [
+      const data = Array.from(tableBody.children).map(r => [
         r.children[0].textContent,
         r.children[1].textContent,
         r.children[2].textContent,
@@ -242,8 +225,8 @@
       ]);
       const ws_data = [
         ["Data Absensi"], [],
-        ["No", "Nama", "Tanggal & Jam", "Lokasi", "Tipe Absen"],
-        ...rows
+        ["No","Nama","Tanggal & Jam","Lokasi","Tipe Absen"],
+        ...data
       ];
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
       XLSX.utils.book_append_sheet(wb, ws, "Absensi");
@@ -259,23 +242,20 @@
       y += 10;
       doc.setFontSize(10);
 
-      Array.from(tableBody.children).forEach((row, i) => {
-        const nama = row.children[1].textContent;
-        const tanggal = row.children[2].textContent;
-        const lokasi = row.children[3].textContent;
-        const tipe = row.children[5].textContent;
-
-        doc.text(`${i + 1}. ${nama} | ${tanggal} | ${tipe}`, 20, y);
+      Array.from(tableBody.children).forEach((r,i) => {
+        const nama  = r.children[1].textContent;
+        const tgljm = r.children[2].textContent;
+        const lok   = r.children[3].textContent;
+        const tipe  = r.children[5].textContent;
+        doc.text(`${i+1}. ${nama} | ${tgljm} | ${tipe}`, 20, y);
         y += 6;
-        if (y > 280) {
-          doc.addPage();
-          y = 20;
-        }
+        if (y > 280) { doc.addPage(); y = 20; }
       });
 
       doc.save(`Absensi_${new Date().toISOString().split('T')[0]}.pdf`);
     }
 
+    // Auto logout 1 jam
     setTimeout(() => localStorage.removeItem('loggedIn'), 3600000);
   </script>
 </body>
