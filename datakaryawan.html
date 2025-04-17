@@ -104,22 +104,30 @@
   </table>
 
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbz5n5y9PbON9Zu-1Md1-xcG8_InFW4Knp5UAwk4o5BUBLRqmWftAIGmpb4XSijc32E/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycby12TlHXJ6gTR68xKVm4tCQHnFq5lqOYHWFW8-5nLffs0JY-5aawjhNDtXUAfbydjs/exec';
     let dataKaryawan = [];
     let selectedFile = null;
     if (localStorage.getItem('loggedIn') !== 'true') {
       window.location.href = 'login.html';
     }
+
+    // Memuat data karyawan dari Google Apps Script
     async function loadKaryawan() {
-      const res = await fetch(scriptURL + '?sheet=Datakaryawan');
-      dataKaryawan = await res.json();
-      tampilkanData(dataKaryawan);
+      const res = await fetch(scriptURL + '?action=ambilKaryawan&sheet=Datakaryawan');
+      const data = await res.json();
+      if (data.success) {
+        dataKaryawan = data.karyawan; // Menyimpan data karyawan
+        tampilkanData(dataKaryawan);
+      } else {
+        alert('Gagal mengambil data karyawan.');
+      }
     }
 
+    // Menampilkan data karyawan ke tabel
     function tampilkanData(data) {
       const tbody = document.getElementById('tabel-karyawan');
       tbody.innerHTML = '';
-
+      
       data.forEach((item, index) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -137,17 +145,20 @@
       });
     }
 
+    // Filter data karyawan berdasarkan nama
     function filterKaryawan() {
       const keyword = document.getElementById('cariNama').value.toLowerCase();
       const filtered = dataKaryawan.filter(nama => nama.toLowerCase().includes(keyword));
       tampilkanData(filtered);
     }
 
+    // Mengaktifkan mode edit pada nama karyawan
     function enableEdit(index) {
       document.getElementById(`input-${index}`).disabled = false;
       document.getElementById(`input-${index}`).focus();
     }
 
+    // Menyimpan perubahan nama karyawan
     async function simpanEdit(index) {
       const input = document.getElementById(`input-${index}`);
       const namaBaru = input.value.trim();
@@ -165,6 +176,7 @@
       loadKaryawan();
     }
 
+    // Menambahkan karyawan baru
     async function tambahKaryawan() {
       const nama = document.getElementById('namaBaru').value.trim();
       if (!nama) return alert('Nama tidak boleh kosong');
@@ -181,6 +193,7 @@
       loadKaryawan();
     }
 
+    // Menghapus karyawan
     async function hapusKaryawan(index) {
       if (!confirm('Yakin ingin menghapus karyawan ini?')) return;
       await fetch(scriptURL, {
@@ -193,10 +206,12 @@
       loadKaryawan();
     }
 
+    // Menghandle upload file Excel
     function handleFileSelect(event) {
       selectedFile = event.target.files[0];
     }
 
+    // Menangani upload file Excel dan memasukkan data ke Google Sheets
     async function handleUpload() {
       if (!selectedFile) return alert("Silakan pilih file Excel terlebih dahulu");
 
@@ -225,15 +240,12 @@
       reader.readAsArrayBuffer(selectedFile);
     }
 
+    // Men-download data karyawan dalam format Excel
     function downloadExcel() {
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet([["Nama"], ...dataKaryawan.map(n => [n])]);
       XLSX.utils.book_append_sheet(wb, ws, "Datakaryawan");
       XLSX.writeFile(wb, "Daftar_Karyawan.xlsx");
-    }
-        function logout() {
-      localStorage.removeItem('loggedIn');
-      window.location.href = 'login.html';
     }
 
     window.onload = loadKaryawan;
