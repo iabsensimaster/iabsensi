@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Absensi Karyawan Master</title>
- <link rel="icon" type="image/png" href="pertamina-logoicon.png">
+  <link rel="icon" type="image/png" href="pertamina-logoicon.png">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -162,14 +162,18 @@
     function loadNamaKaryawan() {
       fetch(karyawanEndpoint)
         .then(response => response.json())
-        .then(data => {
+        .then(result => {
+          const data = result.data || [];
           const selectNama = document.getElementById("nama");
           selectNama.innerHTML = '<option value="">Pilih Nama</option>';
-          data.forEach(nama => {
-            const option = document.createElement("option");
-            option.value = nama;
-            option.textContent = nama;
-            selectNama.appendChild(option);
+
+          data.forEach(row => {
+            if (row[0]) {
+              const option = document.createElement("option");
+              option.value = row[0];
+              option.textContent = row[0];
+              selectNama.appendChild(option);
+            }
           });
         })
         .catch(err => {
