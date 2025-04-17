@@ -159,23 +159,24 @@ const karyawanEndpoint = endpoint + "?action=listnama";
       }, 3000);
     }
 
-    function loadNamaKaryawan() {
-      fetch(karyawanEndpoint)
-        .then(response => response.json())
-        .then(data => {
-          const selectNama = document.getElementById("nama");
-          selectNama.innerHTML = '<option value="">Pilih Nama</option>';
-          data.forEach(nama => {
-            const option = document.createElement("option");
-            option.value = nama;
-            option.textContent = nama;
-            selectNama.appendChild(option);
-          });
-        })
-        .catch(err => {
-          console.error("Gagal mengambil data karyawan:", err);
-          alert("Gagal memuat daftar karyawan.");
-        });
+function loadNamaKaryawan() {
+  fetch(listNamaURL)
+    .then(res => res.json())
+    .then(data => {
+      console.log(data); // Tambahkan log untuk melihat data yang diterima
+      if (!data.success) throw new Error("Gagal mengambil data nama karyawan");
+      const select = document.getElementById("nama");
+      data.nama.forEach(n => {
+        const option = document.createElement("option");
+        option.value = n;
+        option.textContent = n;
+        select.appendChild(option);
+      });
+    })
+    .catch(err => {
+      alert("Error mengambil nama karyawan: " + err.message);
+    });
+
     }
 
     window.addEventListener("load", () => {
