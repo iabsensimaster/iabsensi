@@ -104,22 +104,28 @@
   </table>
 
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbznZwWcsSR5lSaXi_sonpk2SPg1-g_Ia7SGoZKuKVkLm8_VKEZp7IEdz-cZXrROFhM/exec?action=getkaryawan';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbznZwWcsSR5lSaXi_sonpk2SPg1-g_Ia7SGoZKuKVkLm8_VKEZp7IEdz-cZXrROFhM/exec';
     let dataKaryawan = [];
     let selectedFile = null;
+
     if (localStorage.getItem('loggedIn') !== 'true') {
       window.location.href = 'login.html';
     }
 
     // Memuat data karyawan dari Google Apps Script
     async function loadKaryawan() {
-      const res = await fetch(scriptURL + '?action=ambilKaryawan&sheet=Datakaryawan');
-      const data = await res.json();
-      if (data.success) {
-        dataKaryawan = data.karyawan; // Menyimpan data karyawan
-        tampilkanData(dataKaryawan);
-      } else {
-        alert('Gagal mengambil data karyawan.');
+      try {
+        const res = await fetch(scriptURL + '?action=ambilKaryawan&sheet=Datakaryawan');
+        const data = await res.json();
+        if (data.success) {
+          dataKaryawan = data.karyawan;
+          tampilkanData(dataKaryawan);
+        } else {
+          alert('Gagal mengambil data karyawan.');
+        }
+      } catch (error) {
+        alert('Terjadi kesalahan saat mengambil data.');
+        console.error(error);
       }
     }
 
@@ -127,7 +133,6 @@
     function tampilkanData(data) {
       const tbody = document.getElementById('tabel-karyawan');
       tbody.innerHTML = '';
-      
       data.forEach((item, index) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -145,20 +150,20 @@
       });
     }
 
-    // Filter data karyawan berdasarkan nama
+    // Filter nama karyawan
     function filterKaryawan() {
       const keyword = document.getElementById('cariNama').value.toLowerCase();
       const filtered = dataKaryawan.filter(nama => nama.toLowerCase().includes(keyword));
       tampilkanData(filtered);
     }
 
-    // Mengaktifkan mode edit pada nama karyawan
+    // Aktifkan edit
     function enableEdit(index) {
       document.getElementById(`input-${index}`).disabled = false;
       document.getElementById(`input-${index}`).focus();
     }
 
-    // Menyimpan perubahan nama karyawan
+    // Simpan edit
     async function simpanEdit(index) {
       const input = document.getElementById(`input-${index}`);
       const namaBaru = input.value.trim();
@@ -176,7 +181,7 @@
       loadKaryawan();
     }
 
-    // Menambahkan karyawan baru
+    // Tambah karyawan
     async function tambahKaryawan() {
       const nama = document.getElementById('namaBaru').value.trim();
       if (!nama) return alert('Nama tidak boleh kosong');
@@ -193,7 +198,7 @@
       loadKaryawan();
     }
 
-    // Menghapus karyawan
+    // Hapus karyawan
     async function hapusKaryawan(index) {
       if (!confirm('Yakin ingin menghapus karyawan ini?')) return;
       await fetch(scriptURL, {
@@ -206,12 +211,12 @@
       loadKaryawan();
     }
 
-    // Menghandle upload file Excel
+    // Pilih file excel
     function handleFileSelect(event) {
       selectedFile = event.target.files[0];
     }
 
-    // Menangani upload file Excel dan memasukkan data ke Google Sheets
+    // Upload excel ke spreadsheet
     async function handleUpload() {
       if (!selectedFile) return alert("Silakan pilih file Excel terlebih dahulu");
 
@@ -222,7 +227,7 @@
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-        const namaList = rows.slice(1).map(row => row[0]).filter(Boolean); // Skip header
+        const namaList = rows.slice(1).map(row => row[0]).filter(Boolean);
         for (const nama of namaList) {
           await fetch(scriptURL, {
             method: 'POST',
@@ -240,7 +245,7 @@
       reader.readAsArrayBuffer(selectedFile);
     }
 
-    // Men-download data karyawan dalam format Excel
+    // Download ke Excel
     function downloadExcel() {
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet([["Nama"], ...dataKaryawan.map(n => [n])]);
