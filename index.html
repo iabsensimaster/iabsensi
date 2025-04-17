@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Absensi Karyawan Master</title>
- <link rel="icon" type="image/png" href="pertamina-logoicon.png">
+  <link rel="icon" type="image/png" href="pertamina-logoicon.png">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -99,7 +99,7 @@
   <div id="popup">Absensi berhasil!</div>
 
   <img src="pertamina-logo.png" alt="Logo Pertamina" class="logo">
-  <h2>Absensi Karyawan </h2>
+  <h2>Absensi Karyawan</h2>
 
   <select id="nama" required>
     <option value="">Pilih Nama</option>
@@ -225,9 +225,9 @@
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/jpeg");
 
+        // Perbaiki request untuk mengirim data absensi
         fetch(endpoint, {
           method: "POST",
-          mode: "no-cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             nama: nama,
@@ -236,14 +236,19 @@
             tipe: tipeAbsen
           })
         })
-        .then(() => {
-          showLoading(false);
-          let pesan = tipeAbsen === "masuk"
-            ? "Absensi masuk berhasil!"
-            : "Absensi pulang berhasil!";
-          showPopup(pesan);
-          speak("Absensi berhasil. Terima kasih.");
-          document.getElementById("nama").value = "";
+        .then(response => {
+          if (response.ok) {
+            showLoading(false);
+            let pesan = tipeAbsen === "masuk"
+              ? "Absensi masuk berhasil!"
+              : "Absensi pulang berhasil!";
+            showPopup(pesan);
+            speak("Absensi berhasil. Terima kasih.");
+            document.getElementById("nama").value = "";
+          } else {
+            showLoading(false);
+            status.innerText = "Gagal mengirim data.";
+          }
         })
         .catch(() => {
           showLoading(false);
