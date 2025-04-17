@@ -127,8 +127,8 @@
     const loading = document.getElementById("loading");
     const popup = document.getElementById("popup");
 
-    const endpoint = "https://script.google.com/macros/s/AKfycbzGqL--JtBYddwLeQHF_tpK2ryCWJqZkdaMdO9SjE5ypL13Vf5o4WJXrC8dYZfs2lI/exec"; // URL untuk Absensi (POST)
-    const karyawanEndpoint = "https://script.google.com/macros/s/AKfycbzGqL--JtBYddwLeQHF_tpK2ryCWJqZkdaMdO9SjE5ypL13Vf5o4WJXrC8dYZfs2lI/exec?action=listnama"; // URL untuk daftar nama karyawan (GET)
+    const endpoint = "https://script.google.com/macros/s/AKfycbwIgVXLimKhbL0s9hnuDRG-Bdk6FTawBneyXQAu6TXBoBiIhJAxHVyK7I_IQxhRne8/exec"; // URL untuk Absensi (POST)
+    const karyawanEndpoint = "https://script.google.com/macros/s/AKfycbwIgVXLimKhbL0s9hnuDRG-Bdk6FTawBneyXQAu6TXBoBiIhJAxHVyK7I_IQxhRne8/exec?action=listnama"; // URL untuk daftar nama karyawan (GET)
 
     let femaleVoice;
 
@@ -225,33 +225,30 @@
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const dataUrl = canvas.toDataURL("image/jpeg");
 
-fetch(endpoint, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    nama: nama,
-    lokasi: lokasi,
-    foto: dataUrl,
-    tipe: tipeAbsen
-  })
-})
-.then(response => response.text())   // atau .json() jika Apps Script kirim JSON
-.then(res => {
-  showLoading(false);
-  let pesan = tipeAbsen === "masuk"
-    ? "Absensi masuk berhasil!"
-    : "Absensi pulang berhasil!";
-  showPopup(pesan);
-  speak("Absensi berhasil. Terima kasih.");
-  document.getElementById("nama").value = "";
-})
-.catch(err => {
-  showLoading(false);
-  console.error("Error kirim absensi:", err);
-  status.innerText = "Gagal mengirim data.";
-});
+        fetch(endpoint, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            nama: nama,
+            lokasi: lokasi,
+            foto: dataUrl,
+            tipe: tipeAbsen
+          })
+        })
+        .then(() => {
+          showLoading(false);
+          let pesan = tipeAbsen === "masuk"
+            ? "Absensi masuk berhasil!"
+            : "Absensi pulang berhasil!";
+          showPopup(pesan);
+          speak("Absensi berhasil. Terima kasih.");
+          document.getElementById("nama").value = "";
+        })
+        .catch(() => {
+          showLoading(false);
+          status.innerText = "Gagal mengirim data.";
+        });
 
       }, () => {
         showLoading(false);
