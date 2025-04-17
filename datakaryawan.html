@@ -115,7 +115,7 @@
     // Memuat data karyawan dari Google Apps Script
     async function loadKaryawan() {
       try {
-        const res = await fetch(scriptURL + '?action=ambilKaryawan&sheet=Datakaryawan');
+        const res = await fetch(scriptURL + '?action=getkaryawan&sheet=Datakaryawan');
         const data = await res.json();
         if (data.success) {
           dataKaryawan = data.karyawan;
